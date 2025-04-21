@@ -6,6 +6,7 @@
     <title>TURN Server Tester</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -16,22 +17,34 @@
         
         <div class="control-panel">
             <div class="form-group">
-                <label for="serverUrl">TURN/STUN SERVER URL</label>
+                <label for="serverUrl">
+                    TURN/STUN SERVER URL
+                    <i class="fas fa-question-circle tooltip-trigger" data-tooltip="Enter your TURN server URL (e.g., turn:example.com:3478)"></i>
+                </label>
                 <input type="text" id="serverUrl" placeholder="turn:example.com:3478" class="cyber-input">
             </div>
             
             <div class="form-group">
-                <label for="username">USERNAME</label>
+                <label for="username">
+                    USERNAME
+                    <i class="fas fa-question-circle tooltip-trigger" data-tooltip="Your TURN server username"></i>
+                </label>
                 <input type="text" id="username" placeholder="username" class="cyber-input">
             </div>
             
             <div class="form-group">
-                <label for="password">CREDENTIAL</label>
+                <label for="password">
+                    CREDENTIAL
+                    <i class="fas fa-question-circle tooltip-trigger" data-tooltip="Your TURN server password/credential"></i>
+                </label>
                 <input type="password" id="password" placeholder="password" class="cyber-input">
             </div>
             
             <div class="form-group">
-                <label for="icePolicy">ICE TRANSPORT POLICY</label>
+                <label for="icePolicy">
+                    ICE TRANSPORT POLICY
+                    <i class="fas fa-question-circle tooltip-trigger" data-tooltip="Choose how ICE candidates should be gathered"></i>
+                </label>
                 <select id="icePolicy" class="cyber-select">
                     <option value="all">ALL</option>
                     <option value="relay">RELAY ONLY</option>
@@ -48,7 +61,10 @@
         <div class="results-panel">
             <div class="status-display">
                 <h2>STATUS</h2>
-                <div id="statusIndicator" class="status-indicator">READY</div>
+                <div id="statusIndicator" class="status-indicator">
+                    <i class="fas fa-circle"></i>
+                    <span>READY</span>
+                </div>
             </div>
             
             <div class="results-display">
