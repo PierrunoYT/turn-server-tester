@@ -173,6 +173,9 @@ async function startTurnTest() {
                 totalCandidates++;
                 const candidateType = event.candidate.candidate.split(' ')[7];
                 addLogEntry(`New ICE candidate: ${candidateType}`, 'info');
+                
+                // Add the full candidate to the detailed view
+                addCandidateDetail(event.candidate.candidate);
 
                 if (event.candidate.candidate.includes('relay')) {
                     turnCandidates++;
