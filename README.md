@@ -49,7 +49,7 @@ This is a vanilla JavaScript project with no build steps required. Simply clone 
 
 ## License
 
-MIT License - Feel free to use and modify as needed.
+This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
