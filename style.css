@@ -109,7 +109,11 @@ label {
     overflow: hidden;
     transition: all 0.3s ease;
     width: 100%;
-    margin-top: 20px;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
 }
 
 .cyber-button:hover {
@@ -303,13 +307,33 @@ label {
     grid-template-columns: 1fr auto;
     gap: 15px;
     margin-top: 20px;
+    align-items: stretch;
+}
+
+.cyber-button {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 12px 30px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.1em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
 }
 
 .cyber-button.secondary {
     border-color: var(--secondary-color);
     color: var(--secondary-color);
     width: auto;
-    margin-top: 0;
+    min-width: 120px;
 }
 
 .cyber-button.secondary:hover {
