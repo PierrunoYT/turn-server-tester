@@ -15,7 +15,25 @@
             <div class="header-line"></div>
         </div>
         
+        <div id="browserSupport" class="browser-support">
+            <i class="fas fa-microchip"></i>
+            <span>Checking WebRTC support...</span>
+        </div>
+
         <div class="control-panel">
+            <div class="form-group">
+                <label for="serverPresets">
+                    PRESETS
+                    <i class="fas fa-question-circle tooltip-trigger" data-tooltip="Select from common STUN/TURN servers"></i>
+                </label>
+                <select id="serverPresets" class="cyber-select">
+                    <option value="">Custom Configuration</option>
+                    <option value="google">Google STUN Server</option>
+                    <option value="openrelay">OpenRelay TURN Server</option>
+                    <option value="twilio">Twilio STUN Server</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label for="serverUrl">
                     TURN/STUN SERVER URL
@@ -52,10 +70,16 @@
                 </select>
             </div>
             
-            <button id="startTest" class="cyber-button">
-                <span class="button-text">START TEST</span>
-                <span class="button-glitch"></span>
-            </button>
+            <div class="button-group">
+                <button id="startTest" class="cyber-button">
+                    <span class="button-text">START TEST</span>
+                    <span class="button-glitch"></span>
+                </button>
+                <button id="resetTest" class="cyber-button secondary">
+                    <span class="button-text">RESET</span>
+                    <span class="button-glitch"></span>
+                </button>
+            </div>
         </div>
 
         <div class="results-panel">
@@ -71,6 +95,18 @@
                 <h2>TEST RESULTS</h2>
                 <div id="resultsLog" class="results-log">
                     <div class="log-entry">System initialized. Ready for testing...</div>
+                </div>
+            </div>
+
+            <div class="ice-candidates-section">
+                <h2>
+                    ICE CANDIDATES
+                    <button id="toggleCandidates" class="toggle-button">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </h2>
+                <div id="candidateDetails" class="candidate-details collapsed">
+                    <div class="candidate-list"></div>
                 </div>
             </div>
             

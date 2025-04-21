@@ -1,11 +1,30 @@
 // Configuration for TURN server
 const turnConfig = {
     iceServers: [{
-        urls: 'turn:example.com:3478',  // This will be configurable later
-        username: 'test',               // Placeholder credentials
+        urls: 'turn:example.com:3478',
+        username: 'test',
         credential: 'test123'
     }],
     iceCandidatePoolSize: 10
+};
+
+// Server presets
+const serverPresets = {
+    google: {
+        urls: 'stun:stun.l.google.com:19302',
+        username: '',
+        credential: ''
+    },
+    openrelay: {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+    },
+    twilio: {
+        urls: 'stun:global.stun.twilio.com:3478',
+        username: '',
+        credential: ''
+    }
 };
 
 // Initialize WebRTC connection
@@ -17,10 +36,22 @@ let testStartTime;
 let totalCandidates = 0;
 let turnCandidates = 0;
 
+// Check WebRTC Support
+function checkWebRTCSupport() {
+    const supportBanner = document.getElementById('browserSupport');
+    if (navigator.mediaDevices && window.RTCPeerConnection) {
+        supportBanner.innerHTML = '<i class="fas fa-check-circle"></i><span>WebRTC is supported in this browser</span>';
+        supportBanner.classList.add('supported');
+    } else {
+        supportBanner.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>WebRTC is not supported in this browser</span>';
+        supportBanner.classList.add('unsupported');
+    }
+}
+
 // Function to update UI status
 function updateStatus(message, type = 'info') {
     const statusIndicator = document.getElementById('statusIndicator');
-    statusIndicator.textContent = message;
+    statusIndicator.innerHTML = `<i class="fas fa-circle"></i><span>${message}</span>`;
     statusIndicator.className = 'status-indicator ' + type;
 }
 
@@ -34,6 +65,15 @@ function addLogEntry(message, type = 'info') {
     resultsLog.scrollTop = resultsLog.scrollHeight;
 }
 
+// Function to add ICE candidate to detailed view
+function addCandidateDetail(candidate) {
+    const candidateList = document.querySelector('.candidate-list');
+    const entry = document.createElement('div');
+    entry.className = 'candidate-entry';
+    entry.textContent = candidate;
+    candidateList.appendChild(entry);
+}
+
 // Function to update statistics
 function updateStats() {
     document.getElementById('candidateCount').textContent = totalCandidates;
@@ -44,6 +84,57 @@ function updateStats() {
     }
 }
 
+// Function to reset the test
+function resetTest() {
+    // Clear all input fields
+    document.getElementById('serverUrl').value = '';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('icePolicy').value = 'all';
+    document.getElementById('serverPresets').value = '';
+
+    // Reset statistics
+    totalCandidates = 0;
+    turnCandidates = 0;
+    testStartTime = null;
+    updateStats();
+
+    // Clear logs
+    document.getElementById('resultsLog').innerHTML = '<div class="log-entry">System reset. Ready for testing...</div>';
+    document.querySelector('.candidate-list').innerHTML = '';
+
+    // Reset status
+    updateStatus('READY');
+
+    // Close existing connection
+    if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+    }
+    if (dataChannel) {
+        dataChannel.close();
+        dataChannel = null;
+    }
+}
+
+// Function to handle preset selection
+function handlePresetSelection(e) {
+    const preset = serverPresets[e.target.value];
+    if (preset) {
+        document.getElementById('serverUrl').value = preset.urls;
+        document.getElementById('username').value = preset.username;
+        document.getElementById('password').value = preset.credential;
+    }
+}
+
+// Function to toggle ICE candidates detail view
+function toggleCandidateDetails() {
+    const details = document.getElementById('candidateDetails');
+    const button = document.getElementById('toggleCandidates');
+    details.classList.toggle('collapsed');
+    button.classList.toggle('active');
+}
+
 // Function to start the TURN server test
 async function startTurnTest() {
     try {
@@ -51,11 +142,11 @@ async function startTurnTest() {
         totalCandidates = 0;
         turnCandidates = 0;
         testStartTime = Date.now();
-        
+
         // Update UI to testing state
         updateStatus('TESTING', 'testing');
         addLogEntry('Starting TURN server test...');
-        
+
         // Get configuration from UI
         const serverUrl = document.getElementById('serverUrl').value;
         const username = document.getElementById('username').value;
@@ -82,7 +173,7 @@ async function startTurnTest() {
                 totalCandidates++;
                 const candidateType = event.candidate.candidate.split(' ')[7];
                 addLogEntry(`New ICE candidate: ${candidateType}`, 'info');
-                
+
                 if (event.candidate.candidate.includes('relay')) {
                     turnCandidates++;
                     addLogEntry('✅ TURN server is working - Relay candidate found!', 'success');
@@ -95,7 +186,6 @@ async function startTurnTest() {
         peerConnection.onicegatheringstatechange = () => {
             const state = peerConnection.iceGatheringState;
             addLogEntry(`ICE gathering state: ${state}`);
-            
             if (state === 'complete') {
                 addLogEntry('ICE gathering completed');
                 if (turnCandidates > 0) {
@@ -144,8 +234,18 @@ function initializeTooltips() {
 
 // Start the test when button is clicked
 document.addEventListener('DOMContentLoaded', () => {
+    checkWebRTCSupport();
+
     const startButton = document.getElementById('startTest');
+    const resetButton = document.getElementById('resetTest');
+    const presetSelect = document.getElementById('serverPresets');
+    const toggleButton = document.getElementById('toggleCandidates');
+
     startButton.addEventListener('click', startTurnTest);
+    resetButton.addEventListener('click', resetTest);
+    presetSelect.addEventListener('change', handlePresetSelection);
+    toggleButton.addEventListener('click', toggleCandidateDetails);
+
     initializeTooltips();
     updateStatus('READY');
 });

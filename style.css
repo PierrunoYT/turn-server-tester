@@ -8,6 +8,7 @@
     --success-color: #00ff9d;
     --warning-color: #ffb700;
     --border-color: #2a2a3a;
+    --disabled-color: #4a4a5a;
 }
 
 * {
@@ -272,4 +273,100 @@ label {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--secondary-color);
+}
+
+.browser-support {
+    background: var(--panel-color);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.browser-support i {
+    color: var(--primary-color);
+}
+
+.browser-support.supported {
+    border-color: var(--success-color);
+}
+
+.browser-support.unsupported {
+    border-color: var(--error-color);
+}
+
+.button-group {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.cyber-button.secondary {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+    width: auto;
+    margin-top: 0;
+}
+
+.cyber-button.secondary:hover {
+    background: var(--secondary-color);
+    color: var(--background-color);
+    box-shadow: 0 0 20px rgba(255, 0, 200, 0.5);
+}
+
+.cyber-button.secondary .button-glitch {
+    background: var(--secondary-color);
+}
+
+.ice-candidates-section {
+    margin: 20px 0;
+}
+
+.ice-candidates-section h2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.3s ease;
+}
+
+.toggle-button.active {
+    transform: rotate(180deg);
+}
+
+.candidate-details {
+    background: rgba(10, 10, 15, 0.8);
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+}
+
+.candidate-details.collapsed {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+}
+
+.candidate-list {
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+
+#serverPresets {
+    margin-bottom: 15px;
 }
