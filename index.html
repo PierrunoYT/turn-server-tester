@@ -5,12 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TURN Server Tester</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
 </head>
 <body>
     <div class="container">
-        <h1>TURN Server Tester</h1>
-        <p>Open the browser console to see the test results.</p>
-        <p>Testing TURN server configuration...</p>
+        <div class="header">
+            <h1>TURN SERVER TESTER</h1>
+            <div class="header-line"></div>
+        </div>
+        
+        <div class="control-panel">
+            <div class="form-group">
+                <label for="serverUrl">TURN/STUN SERVER URL</label>
+                <input type="text" id="serverUrl" placeholder="turn:example.com:3478" class="cyber-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="username">USERNAME</label>
+                <input type="text" id="username" placeholder="username" class="cyber-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">CREDENTIAL</label>
+                <input type="password" id="password" placeholder="password" class="cyber-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="icePolicy">ICE TRANSPORT POLICY</label>
+                <select id="icePolicy" class="cyber-select">
+                    <option value="all">ALL</option>
+                    <option value="relay">RELAY ONLY</option>
+                    <option value="none">NONE</option>
+                </select>
+            </div>
+            
+            <button id="startTest" class="cyber-button">
+                <span class="button-text">START TEST</span>
+                <span class="button-glitch"></span>
+            </button>
+        </div>
+
+        <div class="results-panel">
+            <div class="status-display">
+                <h2>STATUS</h2>
+                <div id="statusIndicator" class="status-indicator">READY</div>
+            </div>
+            
+            <div class="results-display">
+                <h2>TEST RESULTS</h2>
+                <div id="resultsLog" class="results-log">
+                    <div class="log-entry">System initialized. Ready for testing...</div>
+                </div>
+            </div>
+            
+            <div class="stats-display">
+                <h2>STATISTICS</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-label">ICE Candidates</span>
+                        <span id="candidateCount" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">TURN Candidates</span>
+                        <span id="turnCount" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Test Duration</span>
+                        <span id="testDuration" class="stat-value">0s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="main.js"></script>
 </body>
