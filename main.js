@@ -1,9 +1,9 @@
 // Configuration for TURN server
 const turnConfig = {
     iceServers: [{
-        urls: 'turn:example.com:3478',
-        username: 'test',
-        credential: 'test123'
+        urls: '',
+        username: '',
+        credential: ''
     }],
     iceCandidatePoolSize: 10
 };
@@ -35,6 +35,31 @@ let dataChannel = null;
 let testStartTime;
 let totalCandidates = 0;
 let turnCandidates = 0;
+
+// Input validation functions
+function validateServerUrl(url) {
+    if (!url.trim()) {
+        return { valid: false, message: 'Server URL is required' };
+    }
+    
+    const validProtocols = ['stun:', 'turn:', 'turns:'];
+    const hasValidProtocol = validProtocols.some(protocol => url.startsWith(protocol));
+    
+    if (!hasValidProtocol) {
+        return { valid: false, message: 'URL must start with stun:, turn:, or turns:' };
+    }
+    
+    return { valid: true };
+}
+
+function validateCredentials(username, password, serverUrl) {
+    if (serverUrl.startsWith('turn:') || serverUrl.startsWith('turns:')) {
+        if (!username.trim() || !password.trim()) {
+            return { valid: false, message: 'Username and credential are required for TURN servers' };
+        }
+    }
+    return { valid: true };
+}
 
 // Check WebRTC Support
 function checkWebRTCSupport() {
@@ -138,20 +163,39 @@ function toggleCandidateDetails() {
 // Function to start the TURN server test
 async function startTurnTest() {
     try {
-        // Reset counters and UI
-        totalCandidates = 0;
-        turnCandidates = 0;
-        testStartTime = Date.now();
-
-        // Update UI to testing state
-        updateStatus('TESTING', 'testing');
-        addLogEntry('Starting TURN server test...');
-
         // Get configuration from UI
         const serverUrl = document.getElementById('serverUrl').value;
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const icePolicy = document.getElementById('icePolicy').value;
+
+        // Validate inputs
+        const urlValidation = validateServerUrl(serverUrl);
+        if (!urlValidation.valid) {
+            updateStatus('ERROR', 'error');
+            addLogEntry(`❌ ${urlValidation.message}`, 'error');
+            return;
+        }
+
+        const credentialValidation = validateCredentials(username, password, serverUrl);
+        if (!credentialValidation.valid) {
+            updateStatus('ERROR', 'error');
+            addLogEntry(`❌ ${credentialValidation.message}`, 'error');
+            return;
+        }
+
+        // Reset counters and UI
+        totalCandidates = 0;
+        turnCandidates = 0;
+        testStartTime = Date.now();
+
+        // Clear previous results
+        document.getElementById('resultsLog').innerHTML = '';
+        document.querySelector('.candidate-list').innerHTML = '';
+
+        // Update UI to testing state
+        updateStatus('TESTING', 'testing');
+        addLogEntry('Starting TURN server test...');
 
         // Update configuration
         turnConfig.iceServers[0].urls = serverUrl;
@@ -171,17 +215,32 @@ async function startTurnTest() {
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
                 totalCandidates++;
-                const candidateType = event.candidate.candidate.split(' ')[7];
+                
+                // Safely parse candidate type
+                const candidateParts = event.candidate.candidate.split(' ');
+                const candidateType = candidateParts.length > 7 ? candidateParts[7] : 'unknown';
+                
                 addLogEntry(`New ICE candidate: ${candidateType}`, 'info');
                 
                 // Add the full candidate to the detailed view
                 addCandidateDetail(event.candidate.candidate);
 
-                if (event.candidate.candidate.includes('relay')) {
+                if (event.candidate.candidate.includes('relay') || event.candidate.candidate.includes('typ relay')) {
                     turnCandidates++;
                     addLogEntry('✅ TURN server is working - Relay candidate found!', 'success');
                 }
                 updateStats();
+            }
+        };
+
+        // Handle ICE connection state changes
+        peerConnection.oniceconnectionstatechange = () => {
+            const state = peerConnection.iceConnectionState;
+            addLogEntry(`ICE connection state: ${state}`);
+            
+            if (state === 'failed') {
+                updateStatus('FAILED', 'error');
+                addLogEntry('❌ ICE connection failed', 'error');
             }
         };
 
@@ -193,12 +252,24 @@ async function startTurnTest() {
                 addLogEntry('ICE gathering completed');
                 if (turnCandidates > 0) {
                     updateStatus('SUCCESS', 'success');
+                    addLogEntry(`✅ Test completed successfully! Found ${turnCandidates} TURN candidate(s)`, 'success');
                 } else {
                     updateStatus('FAILED', 'error');
                     addLogEntry('❌ No TURN candidates found. Check your configuration.', 'error');
                 }
             }
         };
+
+        // Set a timeout for the test
+        setTimeout(() => {
+            if (peerConnection && peerConnection.iceGatheringState !== 'complete') {
+                addLogEntry('⚠️ Test timeout reached', 'warning');
+                if (turnCandidates === 0) {
+                    updateStatus('TIMEOUT', 'error');
+                    addLogEntry('❌ Test timed out without finding TURN candidates', 'error');
+                }
+            }
+        }, 10000); // 10 second timeout
 
         // Create offer to start ICE gathering
         const offer = await peerConnection.createOffer();
@@ -212,11 +283,15 @@ async function startTurnTest() {
     }
 }
 
-// Initialize tooltips
+// Initialize tooltips with proper cleanup
 function initializeTooltips() {
     const tooltips = document.querySelectorAll('.tooltip-trigger');
+    
     tooltips.forEach(tooltip => {
-        tooltip.addEventListener('mouseenter', (e) => {
+        const mouseEnterHandler = (e) => {
+            // Remove any existing tooltips first
+            document.querySelectorAll('.tooltip').forEach(t => t.remove());
+            
             const content = e.target.getAttribute('data-tooltip');
             const tooltipEl = document.createElement('div');
             tooltipEl.className = 'tooltip';
@@ -226,12 +301,17 @@ function initializeTooltips() {
             const rect = e.target.getBoundingClientRect();
             tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 10}px`;
             tooltipEl.style.left = `${rect.left + (rect.width - tooltipEl.offsetWidth) / 2}px`;
-        });
+        };
         
-        tooltip.addEventListener('mouseleave', () => {
-            const tooltips = document.querySelectorAll('.tooltip');
-            tooltips.forEach(t => t.remove());
-        });
+        const mouseLeaveHandler = () => {
+            document.querySelectorAll('.tooltip').forEach(t => t.remove());
+        };
+        
+        tooltip.addEventListener('mouseenter', mouseEnterHandler);
+        tooltip.addEventListener('mouseleave', mouseLeaveHandler);
+        
+        // Store handlers for potential cleanup
+        tooltip._tooltipHandlers = { mouseEnterHandler, mouseLeaveHandler };
     });
 }
 
